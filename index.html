@@ -384,7 +384,7 @@
         }
         .footer a { color: #1a6b3c; text-decoration: none; }
 
-        /* 数据来源汇总表格 */
+        /* 数据来源汇总 - 移动端优化 */
         .sources-summary {
             max-width: 720px;
             margin: 0 auto 40px;
@@ -397,40 +397,130 @@
             margin-bottom: 14px;
             text-align: center;
         }
-        .sources-table {
-            width: 100%;
-            border-collapse: collapse;
+        .source-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
             background: white;
             border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .stat-card .stat-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a6b3c;
+            line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+        .stat-card .stat-bar {
+            height: 4px;
+            background: #e8f5e9;
+            border-radius: 2px;
+            margin-top: 6px;
             overflow: hidden;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        }
+        .stat-card .stat-bar-fill {
+            height: 100%;
+            background: #1a6b3c;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+        .source-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .src-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .src-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .src-card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+            flex: 1;
+        }
+        .src-card-level {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .src-card-level.lv-5a { background: #fdecea; color: #e74c3c; }
+        .src-card-level.lv-4a { background: #fef5e7; color: #f39c12; }
+        .src-card-level.lv-free { background: #eafaf1; color: #27ae60; }
+        .src-card-channels {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .src-ch-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
             font-size: 12.5px;
         }
-        .sources-table thead th {
-            background: #1a6b3c;
-            color: white;
-            padding: 10px 12px;
-            text-align: left;
-            font-weight: 600;
+        .src-ch-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 13px;
+            flex-shrink: 0;
         }
-        .sources-table thead th:first-child { border-radius: 10px 0 0 0; }
-        .sources-table thead th:last-child { border-radius: 0 10px 0 0; }
-        .sources-table tbody td {
-            padding: 9px 12px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #444;
-            vertical-align: top;
+        .src-ch-icon.ic-mini { background: #e8f8ee; }
+        .src-ch-icon.ic-official { background: #e8f0fe; }
+        .src-ch-icon.ic-web { background: #fef5e7; }
+        .src-ch-body {
+            flex: 1;
+            min-width: 0;
         }
-        .sources-table tbody tr:last-child td { border-bottom: none; }
-        .sources-table tbody tr:nth-child(even) { background: #fafbfc; }
-        .sources-table tbody tr:hover { background: #f0f6ef; }
-        .sources-table .col-name { font-weight: 600; color: #222; white-space: nowrap; }
-        .sources-table .col-level { white-space: nowrap; }
-        .sources-table .col-mini { color: #07c160; }
-        .sources-table .col-official { color: #1890ff; }
-        .sources-table .col-source a { color: #1a6b3c; text-decoration: none; word-break: break-all; }
-        .sources-table .col-source a:hover { text-decoration: underline; }
+        .src-ch-value {
+            color: #333;
+            font-weight: 500;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        .src-ch-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+        .src-ch-tag.tag-g { background: #e8f8ee; color: #07c160; }
+        .src-ch-tag.tag-b { background: #e8f0fe; color: #1890ff; }
+        .src-ch-link {
+            display: block;
+            color: #1a6b3c;
+            text-decoration: none;
+            font-size: 11.5px;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+        .src-ch-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -473,20 +563,9 @@
 </div>
 
 <div class="sources-summary" id="sourcesSummary">
-    <h2>📋 全部景区数据来源一览</h2>
-    <table class="sources-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>景区</th>
-                <th>等级</th>
-                <th>微信小程序</th>
-                <th>微信公众号</th>
-                <th>网页来源</th>
-            </tr>
-        </thead>
-        <tbody id="sourcesTableBody"></tbody>
-    </table>
+    <h2>📋 数据来源渠道一览</h2>
+    <div class="source-stats" id="sourceStats"></div>
+    <div class="source-cards" id="sourceCards"></div>
 </div>
 
 <script>
@@ -532,7 +611,7 @@ const scenicData = [
         note: "2026年妇女节、儿童节、暑期、教师节等节点将推出主题优惠，请关注景区公告。"
         , publishDate: "2026-01"
         , officialUrl: "https://www.xiaoqikong.com/"
-        , announcement: { type: "danger", title: "强降雨闭园中（已连续闭园4天，5月20日状态待确认）", time: "2026-05-20", text: "受强降雨影响，小七孔景区部分道路水淹路面，车辆行人无法正常通行。5月17日起闭园，5月18日官方通告确认5月19日全天闭园。截至5月20日上午，尚未检索到官方发布的恢复开放或继续闭园通告，请出行前务必电话确认或关注「荔波樟江风景名胜区」公众号。咨询电话：0854-3516115 / 0854-3516116。", officialDoc: "xiaoqikong-closure-20260519.jpg" }
+        , announcement: { type: "warning", title: "5月21日9:00恢复开园（半价60元，部分景点仍关闭）", time: "2026-05-20", text: "根据气象预报及水位下降情况，小七孔景区将于5月21日上午9:00恢复开园。<b>门票半价优惠60元/人</b>。正常开放：小七孔古桥、68级叠水瀑布、水上森林、翠谷瀑布、卧龙潭、鸳鸯湖下湖、天钟洞。<b>仍关闭</b>：大七孔景点、卧龙谷漂游、鸳鸯湖上湖透明船。正值汛期，部分路段需涉水通行，建议备好雨具及防滑装备。咨询电话：0854-3516115 / 0854-3516116。", officialDocUrl: "https://mp.weixin.qq.com/s/CVrAdvBInWpMx4_ibZT3bg" }
     },
     {
         id: 3,
@@ -767,7 +846,7 @@ function renderCards(data) {
             </div>
             <div class="card-body">
                 <div class="card-body-inner">
-                    ${s.announcement ? `<div class="announcement-bar"><div class="ann-title">🚨 ${s.announcement.title}<span class="ann-time">${s.announcement.time}</span></div>${s.announcement.text}${s.announcement.officialDoc ? `<div class="official-doc" onclick="event.stopPropagation()"><div class="official-doc-label">📄 官方红头文件（点击放大查看）</div><img src="${s.announcement.officialDoc}" alt="${s.name}官方通告文件" onclick="window.open(this.src,'_blank')"></div>` : ''}</div>` : '<div class="no-announcement">✅ 当前无特殊公告，正常开放</div>'}
+                    ${s.announcement ? `<div class="announcement-bar"><div class="ann-title">${s.announcement.type === 'danger' ? '🚨' : '⚠️'} ${s.announcement.title}<span class="ann-time">${s.announcement.time}</span></div>${s.announcement.text}${s.announcement.officialDoc ? `<div class="official-doc" onclick="event.stopPropagation()"><div class="official-doc-label">📄 官方红头文件（点击放大查看）</div><img src="${s.announcement.officialDoc}" alt="${s.name}官方通告文件" onclick="window.open(this.src,'_blank')"></div>` : ''}${s.announcement.officialDocUrl ? `<div style="margin-top:8px"><a href="${s.announcement.officialDocUrl}" target="_blank" rel="noopener" style="color:#1a6b3c;font-size:12px;text-decoration:none;border:1px solid #1a6b3c;border-radius:6px;padding:3px 10px;display:inline-block">📄 查看官方通告原文 ↗</a></div>` : ''}</div>` : '<div class="no-announcement">✅ 当前无特殊公告，正常开放</div>'}
 
                     <div class="section-title">💰 门票价格</div>
                     <table class="price-table">
@@ -839,17 +918,60 @@ function setFilter(type, btn) {
 }
 
 function renderSourceTable() {
-    const tbody = document.getElementById("sourcesTableBody");
-    tbody.innerHTML = scenicData.map((s, i) => `
-        <tr>
-            <td>${i + 1}</td>
-            <td class="col-name">${s.name}</td>
-            <td class="col-level">${s.level === "免费" ? "免费" : s.level}</td>
-            <td class="col-mini">${s.wechatMini || "—"}</td>
-            <td class="col-official">${s.wechatOfficial || "—"}</td>
-            <td class="col-source"><a href="${s.sourceUrl}" target="_blank" rel="noopener">${s.source} ↗</a></td>
-        </tr>
+    const total = scenicData.length;
+    const hasMini = scenicData.filter(s => s.wechatMini).length;
+    const hasOfficial = scenicData.filter(s => s.wechatOfficial).length;
+    const hasWeb = scenicData.filter(s => s.sourceUrl).length;
+
+    // 统计卡片
+    const statsHTML = [
+        { num: total, label: "覆盖景区", pct: 100 },
+        { num: hasMini, label: "微信小程序", pct: Math.round(hasMini / total * 100) },
+        { num: hasOfficial, label: "微信公众号", pct: Math.round(hasOfficial / total * 100) },
+        { num: hasWeb, label: "网页来源", pct: Math.round(hasWeb / total * 100) }
+    ].map(s => `
+        <div class="stat-card">
+            <div class="stat-num">${s.num}</div>
+            <div class="stat-label">${s.label}</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:${s.pct}%"></div></div>
+        </div>
     `).join("");
+    document.getElementById("sourceStats").innerHTML = statsHTML;
+
+    // 景区卡片列表
+    const cardsHTML = scenicData.map(s => {
+        const lvClass = s.level === "5A" ? "lv-5a" : s.level === "4A" ? "lv-4a" : "lv-free";
+        const lvText = s.level === "免费" ? "免费" : s.level;
+
+        return `
+        <div class="src-card">
+            <div class="src-card-header">
+                <span class="src-card-name">${s.name}</span>
+                <span class="src-card-level ${lvClass}">${lvText}</span>
+            </div>
+            <div class="src-card-channels">
+                <div class="src-ch-row">
+                    <div class="src-ch-icon ic-mini">📱</div>
+                    <div class="src-ch-body">
+                        <div class="src-ch-value">${s.wechatMini || "—"}<span class="src-ch-tag tag-g">小程序</span></div>
+                    </div>
+                </div>
+                <div class="src-ch-row">
+                    <div class="src-ch-icon ic-official">💬</div>
+                    <div class="src-ch-body">
+                        <div class="src-ch-value">${s.wechatOfficial || "—"}<span class="src-ch-tag tag-b">公众号</span></div>
+                    </div>
+                </div>
+                <div class="src-ch-row">
+                    <div class="src-ch-icon ic-web">🔗</div>
+                    <div class="src-ch-body">
+                        <a class="src-ch-link" href="${s.sourceUrl}" target="_blank" rel="noopener">${s.source} ↗</a>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join("");
+    document.getElementById("sourceCards").innerHTML = cardsHTML;
 }
 
 // Init
