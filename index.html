@@ -310,6 +310,11 @@
             color: #c0392b;
             line-height: 1.7;
         }
+        .announcement-bar.ann-warning {
+            background: linear-gradient(135deg, #fffdf5 0%, #fff8e1 100%);
+            border-left-color: #f39c12;
+            color: #b8730a;
+        }
         .announcement-bar .ann-title {
             font-weight: 700;
             display: flex;
@@ -797,6 +802,30 @@ const scenicData = [
         , publishDate: "2025-09"
         , officialUrl: "http://www.gzzjd.com/#/desc"
         , announcement: { type: "warning", title: "大峡谷闭园清淤中（已超预计期限，请电话确认）", time: "2026-05-21", text: "① 织金大峡谷景区因地下暗河汛期淤积，5月8日起临时闭园清淤（原预计10天左右，截至5月21日已超期，具体恢复时间请电话确认）；② 5月12日景区举办"文化进万家"大型公益演出（黔剧、变脸、魔术），活动已结束。③ 织金洞夜游项目已于2月23日起阶段性关停。咨询电话：0857-7826699 / 0857-7827788。" }
+    },
+    {
+        id: 12,
+        name: "龙宫景区",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "130元/人（含游船）", bus: "20元/人", escalator: "20元/人（上行电梯）" },
+        free: [
+            "14周岁（含）以下儿童：凭身份证/户口簿免门票及游船",
+            "60周岁（含）以上老人：凭身份证免门票（需网上预约）",
+            "80周岁（含）以上老人：本人及1名陪护人员免门票",
+            "全国人民警察、现役军人、退役军人、人民教师、医护工作者",
+            "全国在校全日制学生（小学至研究生及在华留学生）",
+            "残疾人、记者、省级及以上摄影家协会会员",
+            "中国航空工业集团等央企在职员工及5名随行人员"
+        ],
+        source: "china-longgong.com / 百度知道 / 贵阳本地宝",
+        sourceUrl: "https://zhidao.baidu.com/question/1651217593021859700.html",
+        wechatMini: "安旅通",
+        wechatOfficial: "贵州龙宫旅游",
+        note: "至少提前一天在「安旅通」预约购票，各平台不售当日票。免票不含观光车、扶梯等特许经营项目。"
+        , publishDate: "2025-10"
+        , officialUrl: "http://www.china-longgong.com/"
+        , announcement: { type: "danger", title: "强降雨全园闭园中（5月19日起暂停开放）", time: "2026-05-21", text: "受强降雨影响，龙宫景区一进龙宫、二进龙宫及通漩河乘船点实施封闭管理，乘船服务暂停，全园闭园管理。待水位恢复安全行驶水位后重新开放。已预约游客可办理退票。咨询电话：400-800-9998。", officialDocUrl: "https://mp.weixin.qq.com/s/T4pL4oavdBPx8VlqXXuvkA" }
     }
 ];
 let currentFilter = "all";
@@ -846,7 +875,7 @@ function renderCards(data) {
             </div>
             <div class="card-body">
                 <div class="card-body-inner">
-                    ${s.announcement ? `<div class="announcement-bar"><div class="ann-title">${s.announcement.type === 'danger' ? '🚨' : '⚠️'} ${s.announcement.title}<span class="ann-time">${s.announcement.time}</span></div>${s.announcement.text}${s.announcement.officialDoc ? `<div class="official-doc" onclick="event.stopPropagation()"><div class="official-doc-label">📄 官方红头文件（点击放大查看）</div><img src="${s.announcement.officialDoc}" alt="${s.name}官方通告文件" onclick="window.open(this.src,'_blank')"></div>` : ''}${s.announcement.officialDocUrl ? `<div style="margin-top:8px"><a href="${s.announcement.officialDocUrl}" target="_blank" rel="noopener" style="color:#1a6b3c;font-size:12px;text-decoration:none;border:1px solid #1a6b3c;border-radius:6px;padding:3px 10px;display:inline-block">📄 查看官方通告原文 ↗</a></div>` : ''}</div>` : '<div class="no-announcement">✅ 当前无特殊公告，正常开放</div>'}
+                    ${s.announcement ? `<div class="announcement-bar${s.announcement.type === 'warning' ? ' ann-warning' : ''}"><div class="ann-title">${s.announcement.type === 'danger' ? '🚨' : '⚠️'} ${s.announcement.title}<span class="ann-time">${s.announcement.time}</span></div>${s.announcement.text}${s.announcement.officialDoc ? `<div class="official-doc" onclick="event.stopPropagation()"><div class="official-doc-label">📄 官方红头文件（点击放大查看）</div><img src="${s.announcement.officialDoc}" alt="${s.name}官方通告文件" onclick="window.open(this.src,'_blank')"></div>` : ''}${s.announcement.officialDocUrl ? `<div style="margin-top:8px"><a href="${s.announcement.officialDocUrl}" target="_blank" rel="noopener" style="color:#1a6b3c;font-size:12px;text-decoration:none;border:1px solid #1a6b3c;border-radius:6px;padding:3px 10px;display:inline-block">📄 查看官方通告原文 ↗</a></div>` : ''}</div>` : '<div class="no-announcement">✅ 当前无特殊公告，正常开放</div>'}
 
                     <div class="section-title">💰 门票价格</div>
                     <table class="price-table">
