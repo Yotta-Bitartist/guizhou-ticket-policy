@@ -1,0 +1,1013 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贵州景区门票优惠政策查询</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f6fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a6b3c 0%, #2d8a4e 100%);
+            color: white;
+            padding: 32px 24px 24px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: 1px; }
+        .header p { font-size: 13px; opacity: 0.85; }
+
+        .search-bar {
+            max-width: 720px;
+            margin: -20px auto 0;
+            padding: 0 16px;
+            position: relative;
+            z-index: 10;
+        }
+        .search-inner {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            display: flex;
+            align-items: center;
+            padding: 6px 8px 6px 16px;
+            gap: 8px;
+        }
+        .search-inner input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            padding: 10px 0;
+            background: transparent;
+            color: #333;
+        }
+        .search-inner input::placeholder { color: #aaa; }
+        .search-inner button {
+            background: #1a6b3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .search-inner button:hover { background: #2d8a4e; }
+
+        .filter-bar {
+            max-width: 720px;
+            margin: 16px auto 0;
+            padding: 0 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            border: 1.5px solid #d0d5dd;
+            background: white;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #555;
+            transition: all 0.2s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: #1a6b3c;
+            color: white;
+            border-color: #1a6b3c;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 16px auto 40px;
+            padding: 0 16px;
+        }
+        .result-count {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 12px;
+            padding-left: 2px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .card-header-left { display: flex; align-items: center; gap: 12px; }
+        .card-rank {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; color: white;
+            flex-shrink: 0;
+        }
+        .r5a { background: #e74c3c; }
+        .r4a { background: #f39c12; }
+        .r-free { background: #27ae60; }
+        .card-title { font-size: 16px; font-weight: 600; color: #222; }
+        .card-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .badge-5a { background: #fdecea; color: #e74c3c; }
+        .badge-4a { background: #fef5e7; color: #f39c12; }
+        .badge-free { background: #eafaf1; color: #27ae60; }
+        .card-arrow {
+            font-size: 12px;
+            color: #aaa;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        .card.open .card-arrow { transform: rotate(180deg); }
+        .btn-official {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f0f6ef;
+            color: #1a6b3c;
+            border: 1px solid #c5e0c7;
+            border-radius: 16px;
+            padding: 4px 11px;
+            font-size: 11.5px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-official:hover { background: #1a6b3c; color: white; border-color: #1a6b3c; }
+
+        .card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+        .card-body-inner {
+            padding: 0 18px 18px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 14px;
+        }
+        .card.open .card-body { max-height: 2000px; }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            font-size: 13.5px;
+        }
+        .price-table th {
+            background: #f8f9fa;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e8e8e8;
+        }
+        .price-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #444;
+        }
+        .price-highlight { color: #e74c3c; font-weight: 700; }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a6b3c;
+            margin: 14px 0 8px;
+            padding-left: 8px;
+            border-left: 3px solid #1a6b3c;
+        }
+        .policy-list {
+            list-style: none;
+            font-size: 13px;
+            color: #444;
+        }
+        .policy-list li {
+            padding: 5px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+        .policy-list li::before {
+            content: "•";
+            color: #1a6b3c;
+            font-weight: 700;
+            position: absolute;
+            left: 2px;
+        }
+        .source-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #1a6b3c;
+            text-decoration: none;
+            border: 1px solid #1a6b3c;
+            border-radius: 6px;
+            padding: 3px 10px;
+            transition: all 0.2s;
+        }
+        .source-link:hover { background: #1a6b3c; color: white; }
+
+        .source-section {
+            margin-top: 12px;
+            background: #fafbfc;
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1px solid #eef0f2;
+        }
+        .source-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12.5px;
+        }
+        .source-row + .source-row { border-top: 1px dashed #e0e0e0; }
+        .source-label { color: #888; white-space: nowrap; margin-right: 8px; min-width: 72px; }
+        .source-value { color: #444; font-weight: 500; text-align: right; flex: 1; word-break: break-all; }
+        .source-value a { color: #1a6b3c; text-decoration: none; margin-left: 6px; }
+        .source-value a:hover { text-decoration: underline; }
+        .tag-mini {
+            display: inline-block;
+            background: #07c160;
+            color: white;
+            font-size: 10.5px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            vertical-align: middle;
+            margin-left: 4px;
+            font-weight: 600;
+        }
+        .tag-wxmp {
+            display: inline-block;
+            background: #07c160;
+            color: white;
+            font-size: 10.5px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            vertical-align: middle;
+            margin-left: 4px;
+            font-weight: 600;
+            background: #1890ff;
+        }
+        .source-web { font-size: 11.5px; color: #999; margin-top: 4px; }
+        .source-update {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed #e0e0e0;
+            font-size: 11px;
+            color: #bbb;
+        }
+        .source-update .update-label { white-space: nowrap; }
+        .source-update .update-time {
+            color: #999;
+            font-weight: 500;
+            background: #f0f0f0;
+            padding: 1px 8px;
+            border-radius: 10px;
+        }
+        .note {
+            font-size: 12px;
+            color: #e67e22;
+            background: #fef9e7;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            line-height: 1.7;
+        }
+        .announcement-bar {
+            background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
+            border-left: 4px solid #e74c3c;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 12.5px;
+            color: #c0392b;
+            line-height: 1.7;
+        }
+        .announcement-bar.ann-warning {
+            background: linear-gradient(135deg, #fffdf5 0%, #fff8e1 100%);
+            border-left-color: #f39c12;
+            color: #b8730a;
+        }
+        .announcement-bar .ann-title {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 4px;
+            color: #e74c3c;
+        }
+        .announcement-bar .ann-time {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        .no-announcement {
+            font-size: 11.5px;
+            color: #27ae60;
+            background: #eafaf1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: -4px;
+        }
+        .official-doc {
+            margin-top: 8px;
+            border: 1.5px solid #e74c3c;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .official-doc img {
+            width: 100%;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .official-doc img:hover { transform: scale(1.02); }
+        .official-doc-label {
+            font-size: 11px;
+            color: #e74c3c;
+            background: #fef0f0;
+            padding: 4px 10px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #aaa;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .footer a { color: #1a6b3c; text-decoration: none; }
+
+        /* 数据来源汇总 - 移动端优化 */
+        .sources-summary {
+            max-width: 720px;
+            margin: 0 auto 40px;
+            padding: 0 16px;
+        }
+        .sources-summary h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a6b3c;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .source-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .stat-card .stat-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a6b3c;
+            line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+        .stat-card .stat-bar {
+            height: 4px;
+            background: #e8f5e9;
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .stat-card .stat-bar-fill {
+            height: 100%;
+            background: #1a6b3c;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+        .source-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .src-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .src-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .src-card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+            flex: 1;
+        }
+        .src-card-level {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .src-card-level.lv-5a { background: #fdecea; color: #e74c3c; }
+        .src-card-level.lv-4a { background: #fef5e7; color: #f39c12; }
+        .src-card-level.lv-free { background: #eafaf1; color: #27ae60; }
+        .src-card-channels {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .src-ch-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 12.5px;
+        }
+        .src-ch-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .src-ch-icon.ic-mini { background: #e8f8ee; }
+        .src-ch-icon.ic-official { background: #e8f0fe; }
+        .src-ch-icon.ic-web { background: #fef5e7; }
+        .src-ch-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .src-ch-value {
+            color: #333;
+            font-weight: 500;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        .src-ch-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+        .src-ch-tag.tag-g { background: #e8f8ee; color: #07c160; }
+        .src-ch-tag.tag-b { background: #e8f0fe; color: #1890ff; }
+        .src-ch-link {
+            display: block;
+            color: #1a6b3c;
+            text-decoration: none;
+            font-size: 11.5px;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+        .src-ch-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🏔️ 贵州景区门票优惠政策查询</h1>
+    <p>数据来源：景区官网 · 微信小程序/公众号 · 贵州省政府门户 · 更新于2026年6月1日18时</p>
+</div>
+
+<div class="search-bar">
+    <div class="search-inner">
+        <input type="text" id="searchInput" placeholder="搜索景区名称，如：黄果树、梵净山、西江..." oninput="filterCards()">
+        <button onclick="filterCards()">搜索</button>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">全部</button>
+    <button class="filter-btn" data-filter="5A" onclick="setFilter('5A', this)">5A景区</button>
+    <button class="filter-btn" data-filter="free" onclick="setFilter('free', this)">有免票政策</button>
+    <button class="filter-btn" data-filter="student" onclick="setFilter('student', this)">学生优惠</button>
+    <button class="filter-btn" data-filter="police" onclick="setFilter('police', this)">👮 人民警察</button>
+    <button class="filter-btn" data-filter="military" onclick="setFilter('military', this)">🎖️ 现役军人</button>
+    <button class="filter-btn" data-filter="veteran" onclick="setFilter('veteran', this)">🎖️ 退役军人</button>
+    <button class="filter-btn" data-filter="teacher" onclick="setFilter('teacher', this)">👨‍🏫 人民教师</button>
+    <button class="filter-btn" data-filter="medical" onclick="setFilter('medical', this)">⚕️ 医护工作者</button>
+</div>
+
+<div class="container">
+    <div class="result-count" id="resultCount"></div>
+    <div id="cardList"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="icon">🔍</div>
+        <p>未找到匹配的景区，请尝试其他关键词</p>
+    </div>
+</div>
+
+<div class="footer">
+    数据收集：WorkBuddy AI &nbsp;|&nbsp; 各景区价格以官方当日公示为准
+</div>
+
+<div class="sources-summary" id="sourcesSummary">
+    <h2>📋 数据来源渠道一览</h2>
+    <div class="source-stats" id="sourceStats"></div>
+    <div class="source-cards" id="sourceCards"></div>
+</div>
+
+<script>
+const scenicData = [
+    {
+        id: 1,
+        name: "黄果树景区",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "160元（旺季）", bus: "50元", insurance: "10元（自愿）", escalator: "单程30元 / 双程50元" },
+        free: [
+            "6周岁以下儿童（凭有效身份证明）",
+            "65周岁以上老年人（凭有效身份证明）",
+            "全国人民警察、现役军人、退役军人、人民教师、医护工作者",
+            "全国在校大、中、小学生（含港澳台及留学生，凭学生证）",
+            "中国航空工业集团等央企在职员工及5名随行人员"
+        ],
+        source: "hgsgwh.anshun.gov.cn / 贵阳本地宝",
+        sourceUrl: "https://hgsgwh.anshun.gov.cn/qjhgs/pwxx/",
+        wechatMini: "安旅通",
+        wechatOfficial: "黄果树景区 / 自然自在黄果树",
+        note: "最多提前15天在「安旅通」小程序预约。水帘洞每日限流6000人，需单独实名制分时预约。"
+        , publishDate: "2025-11"
+        , officialUrl: "https://www.hgscn.com"
+        , announcement: { type: "warning", title: "5月31日天星桥水上石林已恢复开放；水帘洞每日限流6000人，实行实名制分时预约", time: "2026-05-31", text: "据安顺旅游集团<b>5月31日最新公告</b>：前期因强降雨临时管控的黄果树景区<b>天星桥水上石林区域已恢复开放</b>。此前天星洞于5月26-29日封闭施工安装护栏，已于5月30日施工结束恢复。水帘洞实行实名制分时预约管控（每日限流6000人），常态化约满情况较多，建议提前预约。景区所有景点（大瀑布、水帘洞、天星桥上半程/下半程/天星洞/水上石林、陡坡塘）均正常开放。服务热线：400-800-9998。", officialDocUrl: "https://www.hgscn.com/hgs/jqgg/202605/20260531_93851419.shtml" }
+    },
+    {
+        id: 2,
+        name: "荔波小七孔景区",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "约120元（以官方实时为准）", bus: "约40-50元（以官方实时为准）" },
+        free: [
+            "2026年阶段性：贵州、广西、四川、重庆、云南籍游客免首道门票（至2026年2月16日）",
+            "凭有效学生证的学生：本人可携带2名同行人员免门票（至2026年2月28日）",
+            "到梅原景区游览游客：领取通关文牒盖章后免小七孔门票（梅花季活动期间）",
+            "全国（含港澳台）6周岁以下儿童、65周岁以上老人：按贵州省统一政策免票"
+        ],
+        source: "guizhou.gov.cn / 贵阳本地宝",
+        sourceUrl: "https://www.guizhou.gov.cn/ztzl/hxxcwf/xqk/xgyd/202601/t20260115_89301629.html",
+        wechatMini: "一码游贵州",
+        wechatOfficial: "荔波樟江风景名胜区 / 荔波小七孔售票官网",
+        note: "2026年妇女节、儿童节、暑期、教师节等节点将推出主题优惠，请关注景区公告。"
+        , publishDate: "2026-01"
+        , officialUrl: "http://liboxiaoqikong.com"
+        , announcement: { type: "warning", title: "已恢复开园（门票半价60元，大七孔/漂游/透明船仍关闭）", time: "2026-05-21", text: "小七孔景区已于<b>5月21日上午9:00恢复开园</b>，门票半价优惠60元/人。<b>正常开放</b>：小七孔古桥、68级叠水瀑布、水上森林、翠谷瀑布、卧龙潭、鸳鸯湖下湖、天钟洞。<b>仍关闭</b>：大七孔景点、卧龙谷漂游、鸳鸯湖上湖透明船。正值汛期，部分路段需涉水通行，建议备好雨具及防滑装备。咨询电话：0854-3516115 / 0854-3516116。", officialDocUrl: "https://www.sohu.com/a/1025499233_121956424" }
+    },
+    {
+        id: 3,
+        name: "西江千户苗寨",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "90元/人·次（当日有效）", bus: "20元（4程套票）/ 5元（单程）" },
+        free: [
+            "6周岁以下儿童、65周岁以上老人",
+            "全国在校大、中、小学生（凭学生证）",
+            "现役及退役军人、烈士遗属、因公牺牲/病故军人遗属",
+            "人民警察、公安英烈子女、贵州省警务辅助人员",
+            "消防救援人员、残疾人、医护工作者、人民教师",
+            "台湾首次到大陆游客、持新闻记者证人员",
+            "持「贵州省优才卡」人员（可携5人）",
+            "佛山市、杭州市户籍居民（长期政策）"
+        ],
+        source: "xjqhmz.com / 贵阳本地宝",
+        sourceUrl: "https://gy.bendibao.com/tour/2023417/65400.shtm",
+        wechatMini: "一码游贵州",
+        wechatOfficial: "西江千户苗寨景区 / 西江千户苗寨",
+        note: "免门票游客需到线下窗口审核证件办理，观光车票需另购。"
+        , publishDate: "2025-10"
+        , officialUrl: "http://www.xjqhmz.com"
+    },
+    {
+        id: 4,
+        name: "赤水丹霞旅游区",
+        level: "5A",
+        tags: ["5A"],
+        price: { ticket: "联票180元（大瀑布+燕子岩+佛光岩，两日有效）", bus: "观光车/电梯另购" },
+        free: [
+            "按贵州省统一优惠政策执行：6周岁以下儿童、65周岁以上老人免票",
+            "现役军人、退役军人、人民警察、医护工作者、教师等按省政策免票",
+            "全国在校大、中、小学生按省政策免票"
+        ],
+        source: "shop.csdxcn.com / 赤水市政府公开信息",
+        sourceUrl: "https://shop.csdxcn.com/web/ticketDetail1.html",
+        wechatMini: "智游遵义",
+        wechatOfficial: "赤水丹霞旅游区",
+        note: "联票两日内有效，逾期未使用可通过「智游遵义」小程序申请退款。"
+        , publishDate: "2025-06"
+        , officialUrl: "https://www.csdxcn.com"
+    },
+    {
+        id: 5,
+        name: "万峰林景区",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "70元（旺季）/ 60元（淡季）", bus: "50元（观峰道观光车）" },
+        free: [
+            "全国在校大、中、中学生（凭有效学生证明）免门票",
+            "6周岁以下儿童、65周岁以上老人免门票",
+            "80周岁以上老人、盲人、重度残疾人：本人及1名陪护人员免门票",
+            "现役军人、人民警察、医护工作者、人民教师、消防救援人员、记者、导游、残疾人免门票",
+            "持贵州省/黔西南州「优才卡」：本人及随行5人免门票",
+            "援黔医疗卫生专家：随行4人以内免票，4-8人五折"
+        ],
+        source: "wanfenglin.cn / guizhou.gov.cn",
+        sourceUrl: "https://www.wanfenglin.cn/piaowuxinxi.html",
+        wechatMini: "一码游贵州",
+        wechatOfficial: "万峰林景区",
+        note: "门票+观光车共计120元，可前往5个观景平台。也可免费自驾或骑行进入峰林内部。"
+        , publishDate: "2025-07"
+        , officialUrl: "https://www.wanfenglin.cn"
+        , announcement: { type: "warning", title: "凌峰步道5月20日起因降雨暂时关闭（无人机禁飞令仍有效）", time: "2026-05-20", text: "据万峰林景区2026年5月20日公告：因持续降雨天气影响，凌峰步道路面湿滑，为保障游客出行安全，<b>凌峰步道即日起暂时关闭</b>，恢复开放时间另行通知。另据5月14日公告，景区范围内禁止未经批准的无人机飞行活动。景区其他区域正常开放。服务热线：400-118-0859。", officialDocUrl: "https://wanfenglin.com/jingqugonggao.html" }
+    },
+    {
+        id: 6,
+        name: "梵净山景区",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "100元（旺季）/ 90元（淡季）", bus: "东线24元 / 西线16元", cable: "单程70元 / 往返140元" },
+        free: [
+            "14周岁以下儿童：免大门票（需购观光车票）",
+            "身高1.1米以下：免门票，需购观光车票",
+            "现役军人、残疾人、佛教人员、全日制学生、80周岁以上陪护人员：先购全价票，到景区退差价",
+            "全国人民警察、公安英烈子女、贵州省警务辅助人员：免门票",
+            "持铜仁市/贵阳市「优才卡」：本人及随行5人免门票"
+        ],
+        source: "fanjingshan.gz.cn / 贵阳本地宝",
+        sourceUrl: "https://fanjingshan.gz.cn/",
+        wechatMini: "一码游贵州 / 梵净山旅游区",
+        wechatOfficial: "梵净山旅游区",
+        note: "每日接待上限9000人，须实名制分时预约。观光车及索道费用另购。"
+        , publishDate: "2025-12"
+        , officialUrl: "https://fanjingshan.gz.cn"
+        , announcement: { type: "danger", title: "5月18日因8级大风索道运行缓慢，截至6月1日（已14天）未查到恢复正常运营公告", time: "2026-06-01", text: "梵净山旅游区于<b>5月18日发布公告</b>：受持续<b>8级大风天气</b>影响，景区内索道运行缓慢或暂停，游客等待时间较长，建议谨慎选择是否游览。已购票游客可退票或改期。截至6月1日（已14天）<b>未查到恢复正常运营公告</b>，实际开放状态请务必出行前电话确认（400-997-6999）。此前4月26日景区已公告新老金顶因清理落石暂停对外开放。每日限流9000人，须实名制分时预约，建议提前在「一码游贵州」小程序抢票。", officialDocUrl: "https://fanjingshan.gz.cn/?p=11544" }
+    },
+    {
+        id: 7,
+        name: "马岭河峡谷景区",
+        level: "4A",
+        tags: ["4A", "免票", "学生"],
+        price: { ticket: "约80元（以官方实时为准）", bus: "约50元（以官方实时为准）" },
+        free: [
+            "全国大、中、小学生，本科生及全日制研究生，在华留学生",
+            "65周岁及以上老年人、军人、消防员、残疾人、记者、导游、劳模、警察、教师、医护工作者",
+            "全国公安民警、辅警（含退休人员）及公安英烈子女",
+            "持「贵州省优才卡」「黔西南州优才卡」：本人及随行5人免票",
+            "2024/2025年度A级纳税人：所有在职职工免票（有效期内）"
+        ],
+        source: "163.com / 贵阳本地宝",
+        sourceUrl: "https://www.163.com/dy/article/K652KP8J0524E3PO.html",
+        wechatMini: "一码游贵州 / 马岭河峡谷景区",
+        wechatOfficial: "万峰林景区（含马岭河）",
+        note: "优惠政策截止时间2026年12月31日，需持相关有效证件至线下窗口换票入园。"
+        , publishDate: "2025-04"
+        , officialUrl: "https://www.malinghexiagu.com/guide"
+    },
+    {
+        id: 8,
+        name: "中国天眼（FAST）景区",
+        level: "4A",
+        tags: ["4A"],
+        price: { shuttle: "摆渡车50元（必购）", experience: "天文体验馆约50元", balcony: "观景台需购票" },
+        free: [
+            "身高1.2米以下儿童：免门票（乘车和观影时不可占座）",
+            "现役军人、残疾军人、退役军人、残疾人、60周岁以上老人：免天文体验馆门票"
+        ],
+        source: "zgtianyan.com / 百度知道",
+        sourceUrl: "https://www.zgtianyan.com/zaixiangoupiao/125.html",
+        wechatMini: "中国天眼景区 / 贵旅天眼景区",
+        wechatOfficial: "中国天眼景区",
+        note: "景区实行预约制，现场不售票。FAST观测台本身不收取门票，仅需支付摆渡车费。"
+        , publishDate: "2026-03"
+        , officialUrl: "https://www.zgtianyan.com"
+        , announcement: { type: "info", title: "2026年票价体系及优惠政策公告（3月16日起执行）", time: "2026-03-13", text: "中国天眼景区于3月13日发布2026年票价体系及优惠政策公告，新票价已于3月16日正式执行。景区实行预约制，FAST观测台不收取门票费，需支付摆渡车费。详情请关注「中国天眼景区」官方公众号或咨询景区服务热线。", officialDocUrl: "" }
+    },
+    {
+        id: 9,
+        name: "百里杜鹃景区",
+        level: "5A",
+        tags: ["5A", "免票"],
+        price: { ticket: "65元（2026年4月16日起半价，一票五日游）", bus: "50元（一票三日乘）" },
+        free: [
+            "按贵州省统一优惠政策执行：6周岁以下儿童、65周岁以上老人免票",
+            "现役军人、退役军人、人民警察、医护工作者、教师等按省政策免票",
+            "全国在校大、中、小学生按省政策免票"
+        ],
+        source: "bijie.gov.cn / 腾讯新闻",
+        sourceUrl: "https://www.bijie.gov.cn/hhbj/cy/lyzn/202604/t20260415_90007145.html",
+        wechatMini: "一码游贵州",
+        wechatOfficial: "百里杜鹃",
+        note: "2026年3月10日进入赏花期。推出365元年卡，可无限次进入百里杜鹃+方家坪+彝山花谷+四季花海。"
+        , publishDate: "2026-04"
+        , officialUrl: "http://bldjzhly.cn"
+    },
+    {
+        id: 10,
+        name: "镇远古城景区",
+        level: "免费",
+        tags: ["免票"],
+        price: { ticket: "古城区域免费开放", spots: "青龙洞60元 / 石屏山30元 / 铁溪50元 / 㵲阳河40元 / 天后宫30元" },
+        free: [
+            "14岁以下儿童、60岁以上老人：各收费景点均免票",
+            "杭州市、佛山市市民：免青龙洞、石屏山、天后宫门票（凭身份证）",
+            "全日制在校学生：半价优惠（青龙洞、石屏山、铁溪、天后宫）"
+        ],
+        source: "贵阳本地宝 / 镇远县政府公开信息",
+        sourceUrl: "https://gy.bendibao.com/tour/2023418/65463.shtm",
+        wechatMini: "一码游贵州",
+        wechatOfficial: "镇远古城旅游",
+        note: "古城老街、舞阳河沿岸等公共区域免费开放，各独立景点需单独购票。"
+        , publishDate: "2025-08"
+        , officialUrl: "https://www.mczyly.com/"
+    },
+    {
+        id: 11,
+        name: "织金洞景区",
+        level: "5A",
+        tags: ["5A", "免票"],
+        price: { ticket: "100元（淡季参考价）", bus: "20元", insurance: "10元（自愿）" },
+        free: [
+            "贵州本地游客阶段性免门票（通常在秋冬季，以当年公告为准）",
+            "60周岁以上老人、未成年人：建议家属陪同入洞",
+            "按贵州省统一政策：6周岁以下儿童、65周岁以上老人免票"
+        ],
+        source: "gzzjd.com / 贵阳本地宝",
+        sourceUrl: "https://gy.bendibao.com/tour/2023418/65470.shtm",
+        wechatMini: "一码游贵州",
+        wechatOfficial: "织金洞世界地质公园",
+        note: "景区无线下售票窗口，须至少提前1天在OTA平台或「一码游贵州」预约。"
+        , publishDate: "2025-09"
+        , officialUrl: "http://www.gzzjd.com/#/desc"
+        , announcement: { type: "warning", title: "大峡谷闭园清淤延期中（5月16日延期公告，恢复时间未定；主洞正常开放）", time: "2026-05-16", text: "① 织金大峡谷景区因核心地下暗河汛期淤积严重，5月8日起临时闭园清淤；据<b>5月16日延期公告</b>：因连日强降雨影响，清淤工作尚未完成，<b>原定恢复开放时间相应推迟</b>，正式开园时间将结合天气状况及工程进度另行发布（截至6月1日仍未恢复，已24天，建议电话确认：0857-7827788）；② 织金洞夜游项目已于2月23日起阶段性关停（五一期间5月1日-4日曾临时恢复开放，后续关注官方通知）；③ 织金洞主洞正常开放，须提前在OTA平台或「一码游贵州」预约。咨询电话：0857-7827788。" }
+    },
+    {
+        id: 12,
+        name: "龙宫景区",
+        level: "5A",
+        tags: ["5A", "免票", "学生"],
+        price: { ticket: "130元/人（含游船）", bus: "20元/人", escalator: "20元/人（上行电梯）" },
+        free: [
+            "14周岁（含）以下儿童：凭身份证/户口簿免门票及游船",
+            "60周岁（含）以上老人：凭身份证免门票（需网上预约）",
+            "80周岁（含）以上老人：本人及1名陪护人员免门票",
+            "全国人民警察、现役军人、退役军人、人民教师、医护工作者",
+            "全国在校全日制学生（小学至研究生及在华留学生）",
+            "残疾人、记者、省级及以上摄影家协会会员",
+            "中国航空工业集团等央企在职员工及5名随行人员"
+        ],
+        source: "china-longgong.com / 百度知道 / 贵阳本地宝",
+        sourceUrl: "https://zhidao.baidu.com/question/1651217593021859700.html",
+        wechatMini: "安旅通",
+        wechatOfficial: "贵州龙宫旅游",
+        note: "至少提前一天在「安旅通」预约购票，各平台不售当日票。免票不含观光车、扶梯等特许经营项目。"
+        , publishDate: "2025-10"
+        , officialUrl: "http://www.china-longgong.com/"
+        , announcement: { type: "warning", title: "5月31日通漩河恢复乘船游览；二进龙宫仍因安全隐患继续管控", time: "2026-05-31", text: "据安顺旅游集团<b>5月31日最新公告</b>：一、<b>通漩河景点恢复乘船游览</b>；二、<b>二进龙宫</b>因仍存在安全隐患继续实施临时管控，恢复时间另行通知。此前已恢复区域（一进龙宫乘船点、龙门飞瀑、天池）正常开放。景区实行实名制分时预约购票，出行前请务必确认当日管控情况。咨询电话：400-800-9998。", officialDocUrl: "https://www.hgscn.com/hgs/jqgg/202605/20260531_93851419.shtml" }
+    }
+];
+let currentFilter = "all";
+
+function renderCards(data) {
+    const container = document.getElementById("cardList");
+    const empty = document.getElementById("emptyState");
+    const count = document.getElementById("resultCount");
+
+    if (data.length === 0) {
+        container.innerHTML = "";
+        empty.style.display = "block";
+        count.textContent = "共找到 0 个景区";
+        return;
+    }
+    empty.style.display = "none";
+    count.textContent = "共找到 " + data.length + " 个景区";
+
+    container.innerHTML = data.map((s, i) => {
+        const levelClass = s.level === "5A" ? "r5a" : s.level === "4A" ? "r4a" : "r-free";
+        const badgeClass = s.level === "5A" ? "badge-5a" : s.level === "4A" ? "badge-4a" : "badge-free";
+        const levelText = s.level === "免费" ? "免费开放" : s.level;
+
+        let priceRows = "";
+        if (s.price.ticket) priceRows += `<tr><td>大门票</td><td class="price-highlight">${s.price.ticket}</td></tr>`;
+        if (s.price.bus) priceRows += `<tr><td>观光车</td><td>${s.price.bus}</td></tr>`;
+        if (s.price.shuttle) priceRows += `<tr><td>摆渡车</td><td class="price-highlight">${s.price.shuttle}</td></tr>`;
+        if (s.price.cable) priceRows += `<tr><td>索道</td><td>${s.price.cable}</td></tr>`;
+        if (s.price.escalator) priceRows += `<tr><td>扶梯</td><td>${s.price.escalator}</td></tr>`;
+        if (s.price.insurance) priceRows += `<tr><td>保险</td><td>${s.price.insurance}</td></tr>`;
+        if (s.price.experience) priceRows += `<tr><td>天文体验馆</td><td>${s.price.experience}</td></tr>`;
+        if (s.price.balcony) priceRows += `<tr><td>观景台</td><td>${s.price.balcony}</td></tr>`;
+        if (s.price.spots) priceRows += `<tr><td>各景点票价</td><td>${s.price.spots}</td></tr>`;
+
+        const freeList = s.free.map(f => `<li>${f}</li>`).join("");
+
+        return `
+        <div class="card" data-id="${s.id}">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-header-left">
+                    <div class="card-rank ${levelClass}">${i + 1}</div>
+                    <a class="btn-official" href="${s.officialUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="访问${s.name}官方网站">🌐 官网</a>
+                    <span class="card-title">${s.name}</span>
+                    <span class="card-badge ${badgeClass}">${levelText}</span>
+                </div>
+                <div class="card-arrow">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="card-body-inner">
+                    ${s.announcement ? `<div class="announcement-bar${s.announcement.type === 'warning' ? ' ann-warning' : ''}"><div class="ann-title">${s.announcement.type === 'danger' ? '🚨' : '⚠️'} ${s.announcement.title}<span class="ann-time">${s.announcement.time}</span></div>${s.announcement.text}${s.announcement.officialDoc ? `<div class="official-doc" onclick="event.stopPropagation()"><div class="official-doc-label">📄 官方红头文件（点击放大查看）</div><img src="${s.announcement.officialDoc}" alt="${s.name}官方通告文件" onclick="window.open(this.src,'_blank')"></div>` : ''}${s.announcement.officialDocUrl ? `<div style="margin-top:8px"><a href="${s.announcement.officialDocUrl}" target="_blank" rel="noopener" style="color:#1a6b3c;font-size:12px;text-decoration:none;border:1px solid #1a6b3c;border-radius:6px;padding:3px 10px;display:inline-block">📄 查看官方通告原文 ↗</a></div>` : ''}</div>` : '<div class="no-announcement">✅ 当前无特殊公告，正常开放</div>'}
+
+                    <div class="section-title">💰 门票价格</div>
+                    <table class="price-table">
+                        <thead><tr><th>项目</th><th>价格</th></tr></thead>
+                        <tbody>${priceRows}</tbody>
+                    </table>
+
+                    <div class="section-title">🆓 免票 / 优惠政策</div>
+                    <ul class="policy-list">${freeList}</ul>
+
+                    ${s.note ? `<div class="note">⚠️ ${s.note}</div>` : ""}
+
+                    <div class="source-section">
+                        <div class="source-row">
+                            <span class="source-label">📱 微信小程序</span>
+                            <span class="source-value">${s.wechatMini || "—"}<span class="tag-mini">小程序</span></span>
+                        </div>
+                        <div class="source-row">
+                            <span class="source-label">💬 微信公众号</span>
+                            <span class="source-value">${s.wechatOfficial || "—"}<span class="tag-wxmp">公众号</span></span>
+                        </div>
+                        <div class="source-web">
+                            📎 网页数据来源：
+                            <a href="${s.sourceUrl}" target="_blank" rel="noopener">${s.source}</a> ↗
+                        </div>
+                        <div class="source-update">
+                            <span class="update-label">🕐 政策数据最新发布时间</span>
+                            <span class="update-time">${s.publishDate || "未知"}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join("");
+}
+
+function toggleCard(header) {
+    const card = header.parentElement;
+    card.classList.toggle("open");
+}
+
+function filterCards() {
+    const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+    let filtered = scenicData;
+
+    if (keyword) {
+        filtered = filtered.filter(s => s.name.toLowerCase().includes(keyword));
+    }
+    if (currentFilter === "5A") {
+        filtered = filtered.filter(s => s.level === "5A");
+    } else if (currentFilter === "free") {
+        filtered = filtered.filter(s => s.tags.includes("免票"));
+    } else if (currentFilter === "student") {
+        filtered = filtered.filter(s => s.tags.includes("学生"));
+    } else if (["police","military","veteran","teacher","medical"].includes(currentFilter)) {
+        const kwMap = { police: "警察", military: "现役军人", veteran: "退役军人", teacher: "教师", medical: "医护" };
+        const keyword = kwMap[currentFilter];
+        filtered = filtered.filter(s => s.free && s.free.some(item => item.includes(keyword)));
+    }
+
+    renderCards(filtered);
+}
+
+function setFilter(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    filterCards();
+}
+
+function renderSourceTable() {
+    const total = scenicData.length;
+    const hasMini = scenicData.filter(s => s.wechatMini).length;
+    const hasOfficial = scenicData.filter(s => s.wechatOfficial).length;
+    const hasWeb = scenicData.filter(s => s.sourceUrl).length;
+
+    // 统计卡片
+    const statsHTML = [
+        { num: total, label: "覆盖景区", pct: 100 },
+        { num: hasMini, label: "微信小程序", pct: Math.round(hasMini / total * 100) },
+        { num: hasOfficial, label: "微信公众号", pct: Math.round(hasOfficial / total * 100) },
+        { num: hasWeb, label: "网页来源", pct: Math.round(hasWeb / total * 100) }
+    ].map(s => `
+        <div class="stat-card">
+            <div class="stat-num">${s.num}</div>
+            <div class="stat-label">${s.label}</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:${s.pct}%"></div></div>
+        </div>
+    `).join("");
+    document.getElementById("sourceStats").innerHTML = statsHTML;
+
+    // 景区卡片列表
+    const cardsHTML = scenicData.map(s => {
+        const lvClass = s.level === "5A" ? "lv-5a" : s.level === "4A" ? "lv-4a" : "lv-free";
+        const lvText = s.level === "免费" ? "免费" : s.level;
+
+        return `
+        <div class="src-card">
+            <div class="src-card-header">
+                <span class="src-card-name">${s.name}</span>
+                <span class="src-card-level ${lvClass}">${lvText}</span>
+            </div>
+            <div class="src-card-channels">
+                <div class="src-ch-row">
+                    <div class="src-ch-icon ic-mini">📱</div>
+                    <div class="src-ch-body">
+                        <div class="src-ch-value">${s.wechatMini || "—"}<span class="src-ch-tag tag-g">小程序</span></div>
+                    </div>
+                </div>
+                <div class="src-ch-row">
+                    <div class="src-ch-icon ic-official">💬</div>
+                    <div class="src-ch-body">
+                        <div class="src-ch-value">${s.wechatOfficial || "—"}<span class="src-ch-tag tag-b">公众号</span></div>
+                    </div>
+                </div>
+                <div class="src-ch-row">
+                    <div class="src-ch-icon ic-web">🔗</div>
+                    <div class="src-ch-body">
+                        <a class="src-ch-link" href="${s.sourceUrl}" target="_blank" rel="noopener">${s.source} ↗</a>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join("");
+    document.getElementById("sourceCards").innerHTML = cardsHTML;
+}
+
+// Init
+renderCards(scenicData);
+renderSourceTable();
+</script>
+</body>
+</html>
+
