@@ -478,5 +478,5 @@
 - csdxcn.com（赤水丹霞燕子岩索道停运）。
 - 兴义旅游公众号 / 华人头条（马岭河峡谷分时段预约）。
 - 头部时间戳更新为2026年7月14日16时。
-- 已推送到 GitHub Pages（commit 待填入）。
+- 已推送到 GitHub Pages（commit 49dffb8）。
 
