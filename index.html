@@ -165,6 +165,19 @@
             color: #444;
             line-height: 1.8;
         }
+        /* 2025 vs 2026 售罄节奏对比卡片 */
+        .yc-legend { font-size: 12px; color: #888; margin: 4px 0 10px; }
+        .yc-card { border: 1px solid #e7e0d6; border-radius: 10px; padding: 12px 14px; margin: 14px 0; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+        .yc-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .yc-name { font-size: 15px; font-weight: 800; color: #1a1a1a; }
+        .yc-verdict { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 12px; background: #eef7f0; color: #1a6b3c; border: 1px solid #cfe8d6; white-space: nowrap; }
+        .yc-counts { font-size: 12px; color: #888; margin-left: auto; }
+        .yc-grid { display: grid; grid-template-columns: 40px repeat(12, 1fr); gap: 3px; align-items: center; }
+        .yc-mhdr { font-size: 10px; color: #999; text-align: center; }
+        .yc-ylabel { font-size: 12px; font-weight: 700; color: #555; text-align: center; }
+        .yc-cell { height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+        .yc-cell.empty { background: #f6f4f1; color: #ccc; font-weight: 400; }
+        .yc-concl { margin-top: 10px; font-size: 12.5px; color: #555; line-height: 1.7; background: #fafafa; border-left: 3px solid #1a6b3c; padding: 8px 10px; border-radius: 0 6px 6px 0; }
         .search-inner {
             background: white;
             border-radius: 12px;
@@ -1912,26 +1925,70 @@ function formatSoldOutDays(days) {
     return parts.join('');
 }
 
-function buildYearCompareRows() {
-    const compareConclusion = {
+function monthDist(days) {
+    const m = new Array(13).fill(0);
+    (days || []).forEach(function(d) {
+        const p = parseInt(String(d).split('/')[0], 10);
+        if (p >= 1 && p <= 12) m[p]++;
+    });
+    return m;
+}
+function ycColor(t) {
+    const r = Math.round(253 + (185 - 253) * t);
+    const g = Math.round(234 + (28 - 234) * t);
+    const b = Math.round(234 + (28 - 234) * t);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+function buildYearCompareCards() {
+    const verdict = {
+        1: "首次停售提前6天 · 强度剧变",
+        2: "节奏一致 · 开园特殊",
+        6: "节奏一致 · 略推迟约5天",
+        10: "推迟11天",
+        11: "2026年新增"
+    };
+    const conclusion = {
         1: "五一节奏一致（5/2两年均停售）；暑期首次停售2026年仅提前6天（7/20 vs 7/26），但量级剧变：2025暑期仅1天偶发停售 → 2026连续28天常态化满容",
         2: "两年暑期均连日售罄；2026因7月上旬闭园、7/12恢复开园即连续4天售罄（开园节奏特殊），2025为8月初高峰连日售罄",
         6: "节奏形态一致：五一两年均满容（5/1-5/4），暑期均自7月中下旬起连续售罄；2026暑期起点略晚约5天（7/20 vs 约7/15），且新增春节、清明售罄——淡季热度扩展",
         10: "节奏一致：两年均为暑期单日触顶，2026年推迟11天（8/15 vs 8/4）",
         11: "2026年暑期出现5次售罄，2025年同期未见公开记录，为2026年新增现象"
     };
-    const rows = [];
+    const cards = [];
     [6, 1, 2, 10, 11].forEach(function(cid) {
         const s = scenicData.find(function(x) { return x.id === cid; });
         if (!s) return;
-        const d25 = (s.soldOutDays2025 && s.soldOutDays2025.length) ? formatSoldOutDays(s.soldOutDays2025) : '<span style="color:#999">无记录</span>';
-        const n26 = (s.soldOutDays && s.soldOutDays.length) ? s.soldOutDays.length : 0;
-        const d26 = n26 ? formatSoldOutDays(s.soldOutDays) : '<span style="color:#999">无记录</span>';
-        const note25 = s.soldOut2025Note ? '<div style="color:#8a6d3b;font-size:12px;margin-top:4px">📌 ' + s.soldOut2025Note + '</div>' : '';
-        const n25 = (s.soldOutDays2025 && s.soldOutDays2025.length) ? s.soldOutDays2025.length : 0;
-        rows.push('<tr><td><b>' + s.name + '</b></td><td>' + d25 + (n25 ? '<div style="color:#c02626;font-weight:600;font-size:12px;margin-top:4px">' + n25 + ' 次可查</div>' : '') + note25 + '</td><td>' + d26 + '<div style="color:#c02626;font-weight:600;font-size:12px;margin-top:4px">' + n26 + ' 次</div></td><td style="font-size:13px">' + (compareConclusion[cid] || '—') + '</td></tr>');
+        const d25 = s.soldOutDays2025 || [];
+        const d26 = s.soldOutDays || [];
+        const dist25 = monthDist(d25), dist26 = monthDist(d26);
+        let maxC = 1;
+        for (let i = 1; i <= 12; i++) { maxC = Math.max(maxC, dist25[i], dist26[i]); }
+        let grid = '<div class="yc-grid">';
+        grid += '<div class="yc-mhdr"></div>';
+        for (let i = 1; i <= 12; i++) { grid += '<div class="yc-mhdr">' + i + '</div>'; }
+        grid += '<div class="yc-ylabel">2025</div>';
+        for (let i = 1; i <= 12; i++) {
+            const c = dist25[i];
+            grid += (c === 0) ? '<div class="yc-cell empty">·</div>' : '<div class="yc-cell" style="background:' + ycColor(c / maxC) + '">' + c + '</div>';
+        }
+        grid += '<div class="yc-ylabel">2026</div>';
+        for (let i = 1; i <= 12; i++) {
+            const c = dist26[i];
+            grid += (c === 0) ? '<div class="yc-cell empty">·</div>' : '<div class="yc-cell" style="background:' + ycColor(c / maxC) + '">' + c + '</div>';
+        }
+        grid += '</div>';
+        const n25 = d25.length, n26 = d26.length;
+        cards.push(
+            '<div class="yc-card">' +
+            '<div class="yc-head"><span class="yc-name">' + s.name + '</span>' +
+            '<span class="yc-verdict">' + (verdict[cid] || '—') + '</span>' +
+            '<span class="yc-counts">2025 可查 ' + n25 + ' 次 · 2026 售罄 ' + n26 + ' 次</span></div>' +
+            grid +
+            '<div class="yc-concl">' + (conclusion[cid] || '') + '</div>' +
+            '</div>'
+        );
     });
-    return rows.join('');
+    return cards.join('');
 }
 
 function renderSoldoutPanel() {
@@ -1959,7 +2016,8 @@ function renderSoldoutPanel() {
         '<div class="panel-sub">数据截至8月24日 · 来源：各景区官方公告（梵净山：梵净山旅游区〔梵净山文旅集团运营〕 / 梵净山美〔三特索道公司运营〕 官方公众号，二者平行）</div>' +
         '<table class="soldout-table"><thead><tr><th>景区</th><th>售罄次数</th><th>售罄公告日</th><th>限流机制</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
         '<div class="panel-section"><h4>📅 2025 vs 2026 售罄节奏对比</h4>' +
-        '<table class="soldout-table"><thead><tr><th>景区</th><th>2025年售罄</th><th>2026年售罄</th><th>节奏对比</th></tr></thead><tbody>' + buildYearCompareRows() + '</tbody></table>' +
+        '<div class="yc-legend">横轴为 1–12 月，色块越深表示该月售罄天数越多；· 表示当月无记录。上下两行对齐同月，可直接对比两年节奏。</div>' +
+        buildYearCompareCards() +
         '<div style="color:#8a6d3b;font-size:12px;margin-top:8px">📌 2025年数据为事后归集：官网公告存档（梵净山 fanjingshan.gz.cn、安旅通 jt.hgscn.com）+ 官方媒体报道（贵州日报、铜仁市政府网、澎湃新闻、贵州广播电视台）；梵净山暑期依官方「自7月中旬起每日满园」表述，逐日公告存档不全。</div>' +
         '<h4 style="margin-top:12px">🔍 对比结论</h4><ol>' +
         '<li><b>节奏高度一致，无系统性提前或推迟</b>：暑期售罄起点基本重合——黄果树2026年仅提前6天（7/20 vs 7/26）、梵净山2026年略推迟约5天（7/20 vs 约7/15）、织金洞推迟11天（8/15 vs 8/4）。</li>' +
