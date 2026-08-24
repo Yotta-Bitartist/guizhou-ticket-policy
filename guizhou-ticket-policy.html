@@ -178,6 +178,17 @@
         .yc-cell { height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
         .yc-cell.empty { background: #f6f4f1; color: #ccc; font-weight: 400; }
         .yc-concl { margin-top: 10px; font-size: 12.5px; color: #555; line-height: 1.7; background: #fafafa; border-left: 3px solid #1a6b3c; padding: 8px 10px; border-radius: 0 6px 6px 0; }
+        .yc-detail { margin-top: 10px; }
+        .yc-detail > summary { cursor: pointer; font-size: 12.5px; font-weight: 700; color: #1a6b3c; padding: 4px 0; user-select: none; }
+        .yc-detail > summary::-webkit-details-marker { color: #1a6b3c; }
+        .yc-dt { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12px; }
+        .yc-dt th, .yc-dt td { border: 1px solid #eee; padding: 4px 8px; text-align: left; vertical-align: top; }
+        .yc-dt th { background: #f3f8f4; color: #1a6b3c; }
+        .yc-dt .yc-mo { font-weight: 700; color: #555; white-space: nowrap; width: 36px; }
+        .yc-same { color: #15803d; font-weight: 700; background: #dcfce7; padding: 0 4px; border-radius: 4px; }
+        .yc-dt-note { font-size: 11px; color: #999; margin-top: 4px; }
+        .yc-legend2 { font-size: 11px; color: #999; margin-top: 6px; }
+        .yc-legend2 .yc-same { font-size: 11px; }
         .search-inner {
             background: white;
             border-radius: 12px;
@@ -1933,6 +1944,28 @@ function monthDist(days) {
     });
     return m;
 }
+function monthDaySets(days) {
+    const m = [];
+    for (let i = 0; i < 13; i++) m.push(new Set());
+    (days || []).forEach(function(d) {
+        const parts = String(d).split('/');
+        const mo = parseInt(parts[0], 10), da = parseInt(parts[1], 10);
+        if (mo >= 1 && mo <= 12 && da >= 1 && da <= 31) m[mo].add(da);
+    });
+    return m;
+}
+function fmtDaySet(set) {
+    if (!set || set.size === 0) return '·';
+    const arr = [...set].sort(function(a, b) { return a - b; });
+    const ranges = [];
+    let start = arr[0], prev = arr[0];
+    for (let i = 1; i < arr.length; i++) {
+        if (arr[i] === prev + 1) { prev = arr[i]; }
+        else { ranges.push(start === prev ? start : start + '–' + prev); start = arr[i]; prev = arr[i]; }
+    }
+    ranges.push(start === prev ? start : start + '–' + prev);
+    return ranges.join('、');
+}
 function ycColor(t) {
     const r = Math.round(253 + (185 - 253) * t);
     const g = Math.round(234 + (28 - 234) * t);
@@ -1977,6 +2010,21 @@ function buildYearCompareCards() {
             grid += (c === 0) ? '<div class="yc-cell empty">·</div>' : '<div class="yc-cell" style="background:' + ycColor(c / maxC) + '">' + c + '</div>';
         }
         grid += '</div>';
+        // 具体日期对照（同月同日售罄高亮）
+        const sets25 = monthDaySets(d25), sets26 = monthDaySets(d26);
+        let dtRows = '';
+        let anyOverlap = 0;
+        for (let mo = 1; mo <= 12; mo++) {
+            const a = sets25[mo], b = sets26[mo];
+            if (a.size === 0 && b.size === 0) continue;
+            const inter = [...a].filter(function(x) { return b.has(x); }).sort(function(x, y) { return x - y; });
+            anyOverlap += inter.length;
+            const interStr = inter.length ? '<span class="yc-same">' + fmtDaySet(new Set(inter)) + '</span>' : '<span style="color:#bbb">无</span>';
+            dtRows += '<tr><td class="yc-mo">' + mo + '月</td><td>' + fmtDaySet(a) + '</td><td>' + fmtDaySet(b) + '</td><td>' + interStr + '</td></tr>';
+        }
+        const dtBlock = '<details class="yc-detail"><summary>📅 具体日期对照（同月同日售罄高亮，共 ' + anyOverlap + ' 天重合）</summary>' +
+            '<table class="yc-dt"><thead><tr><th>月</th><th>2025 具体日</th><th>2026 具体日</th><th>两年重合</th></tr></thead><tbody>' + dtRows + '</tbody></table>' +
+            '<div class="yc-dt-note">绿色为两年同一天均售罄的日期；「–」表示连续区间（如 20–31 = 20、21…31 日）。</div></details>';
         const n25 = d25.length, n26 = d26.length;
         cards.push(
             '<div class="yc-card">' +
@@ -1985,6 +2033,7 @@ function buildYearCompareCards() {
             '<span class="yc-counts">2025 可查 ' + n25 + ' 次 · 2026 售罄 ' + n26 + ' 次</span></div>' +
             grid +
             '<div class="yc-concl">' + (conclusion[cid] || '') + '</div>' +
+            dtBlock +
             '</div>'
         );
     });
